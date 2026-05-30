@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layout/main}">
+
+<div layout:fragment="content" class="dashboard px-4">
+
+    <h2 class="fw-semibold mb-4">Dashboard</h2>
+
+    <!-- KPI CARDS -->
+    <div class="row g-4 mb-4">
+
+        <!-- ADMIN / HR -->
+        <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_HR')" class="col-md-3">
+
+            <div class="card kpi-card p-4">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+                        <p class="text-muted small mb-1">
+                            Total Employees
+                        </p>
+
+                        <h3 th:text="${stats.totalEmployees} ?: 0">
+                            0
+                        </h3>
+                    </div>
+
+                    <div class="card-icon">
+                        <i data-feather="users"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- EMPLOYEE -->
+        <div sec:authorize="hasRole('ROLE_EMPLOYEE')" class="col-md-3">
+
+            <div class="card kpi-card p-4">
+
+                <p class="text-muted small mb-1">
+                    Employee ID
+                </p>
+
+                <h3 th:text="${stats.employeeId} ?: 'N/A'">
+                    0
+                </h3>
+
+            </div>
+
+        </div>
+
+        <!-- ADMIN / HR -->
+        <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_HR')" class="col-md-3">
+
+            <div class="card kpi-card p-4">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <p class="text-muted small mb-1">
+                            Active Onboarding
+                        </p>
+
+                        <h3 th:text="${stats.onboardingActive} ?: 0">
+                            0
+                        </h3>
+
+                    </div>
+
+                    <div class="card-icon">
+                        <i data-feather="layers"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- EMPLOYEE -->
+        <div sec:authorize="hasRole('ROLE_EMPLOYEE')" class="col-md-3">
+
+            <div class="card kpi-card p-4">
+
+                <p class="text-muted small mb-1">
+                    My Onboarding
+                </p>
+
+                <h3 th:text="${stats.onboardingStatus}">
+                    Completed
+                </h3>
+
+            </div>
+
+        </div>
+
+        <!-- ADMIN / HR -->
+        <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_HR')" class="col-md-3">
+
+            <div class="card kpi-card p-4">
+
+                <div class="d-flex justify-content-between">
+
+                    <div>
+
+                        <p class="text-muted small mb-1">
+                            Pending Leaves
+                        </p>
+
+                        <h3 th:text="${stats.pendingLeaves} ?: 0">
+                            0
+                        </h3>
+
+                    </div>
+
+                    <div class="card-icon">
+                        <i data-feather="calendar"></i>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- EMPLOYEE -->
+        <div sec:authorize="hasRole('ROLE_EMPLOYEE')" class="col-md-3">
+
+            <div class="card kpi-card p-4">
+
+                <p class="text-muted small mb-1">
+                    My Leaves
+                </p>
+
+                <h3 th:text="${stats.myLeaves}">
+                    0
+                </h3>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CHARTS -->
+    <div class="row g-4 mb-4">
+
+        <!-- Show only to ADMIN / HR -->
+        <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_HR')" class="col-md-8">
+
+            <div class="card p-4">
+
+                <h5 class="mb-3">
+                    Employee Growth
+                </h5>
+
+                <canvas id="employeeGrowthChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- ADMIN/HR: 4-column wide -->
+        <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_HR')" class="col-md-4">
+
+            <div class="card p-4">
+
+                <h5 class="mb-3">
+                    Leave Breakdown
+                </h5>
+
+                <canvas id="leavePieChart"></canvas>
+
+            </div>
+
+        </div>
+
+        <!-- EMPLOYEE: 6-column wide, centered -->
+        <div sec:authorize="hasRole('ROLE_EMPLOYEE')" class="col-md-6 offset-md-3">
+
+            <div class="card p-4">
+
+                <h5 class="mb-3">
+                    Leave Breakdown
+                </h5>
+
+                <canvas id="leavePieChartEmployee"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ADMIN / HR ONLY -->
+    <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_HR')" class="row g-4">
+
+        <div class="col-md-5">
+
+            <div class="card p-4">
+
+                <h5 class="mb-3">
+                    Onboarding Summary
+                </h5>
+
+                <div th:each="o : ${stats.onboardingList}"
+                     class="mb-3 pb-3 border-bottom">
+
+                    <strong th:text="${o.employeeName}">
+                        Employee
+                    </strong>
+
+                    <small class="text-muted d-block"
+                           th:text="${o.employeeEmail}">
+                        email
+                    </small>
+
+                </div>
+
+                <div th:if="${stats.onboardingList == null or stats.onboardingList.isEmpty()}"
+                     class="text-muted text-center py-3">
+
+                    No active onboardings
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div layout:fragment="scripts">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script th:inline="javascript">
+
+        // =====================================
+        // EMPLOYEE GROWTH CHART
+        // =====================================
+        const growthChartEl = document.getElementById("employeeGrowthChart");
+        if (growthChartEl) {
+            new Chart(
+                growthChartEl,
+                {
+                    type: "line",
+                    data: {
+                        labels: /*[[${stats.months}]]*/ [],
+                        datasets: [{
+                            data: /*[[${stats.employeeCounts}]]*/ [],
+                            borderColor: "#4f46e5",
+                            borderWidth: 3,
+                            tension: 0.3,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            );
+        }
+
+        // =====================================
+        // LEAVE PIE CHART (ADMIN/HR)
+        // =====================================
+        const leaveChartAdmin = document.getElementById("leavePieChart");
+        if (leaveChartAdmin) {
+            new Chart(leaveChartAdmin, {
+                type: "pie",
+                data: {
+                    labels: ["Approved", "Pending", "Rejected"],
+                    datasets: [{
+                        data: [
+                            /*[[${stats.leavesApproved}]]*/ 0,
+                            /*[[${stats.leavesPending}]]*/ 0,
+                            /*[[${stats.leavesRejected}]]*/ 0
+                        ],
+                        backgroundColor: [
+                            "#10b981",
+                            "#f59e0b",
+                            "#ef4444"
+                        ]
+                    }]
+                }
+            });
+        }
+
+        // =====================================
+        // LEAVE PIE CHART (EMPLOYEE)
+        // =====================================
+        const leaveChartEmployee = document.getElementById("leavePieChartEmployee");
+        if (leaveChartEmployee) {
+            new Chart(leaveChartEmployee, {
+                type: "pie",
+                data: {
+                    labels: ["Approved", "Pending", "Rejected"],
+                    datasets: [{
+                        data: [
+                            /*[[${stats.myApprovedLeaves}]]*/ 0,
+                            /*[[${stats.myPendingLeaves}]]*/ 0,
+                            /*[[${stats.myRejectedLeaves}]]*/ 0
+                        ],
+                        backgroundColor: [
+                            "#10b981",
+                            "#f59e0b",
+                            "#ef4444"
+                        ]
+                    }]
+                }
+            });
+        }
+    </script>
+
+</div>
+
+</html>

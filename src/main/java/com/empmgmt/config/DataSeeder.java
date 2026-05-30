@@ -1,0 +1,112 @@
+package com.empmgmt.config;
+
+import com.empmgmt.model.Employee;
+import com.empmgmt.model.EmployeeStatus;
+import com.empmgmt.model.Role;
+import com.empmgmt.security.model.User;
+import com.empmgmt.security.repository.UserRepository;
+import com.empmgmt.repository.EmployeeRepository;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDateTime;
+
+@Component
+@Profile("dev") // 🔴 CRITICAL: NEVER RUN IN PROD
+@RequiredArgsConstructor
+public class DataSeeder implements CommandLineRunner {
+
+    private final UserRepository userRepo;
+    private final EmployeeRepository employeeRepo;
+    private final PasswordEncoder encoder;
+
+    @Override
+    public void run(String... args) {
+
+        if (userRepo.count() > 0) {
+            return;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        String defaultPassword = encoder.encode("employee123");
+
+        Employee adminEmp = employeeRepo.save(
+                Employee.builder()
+                        .firstName("Admin")
+                        .lastName("User")
+                        .email("admin@ems.com")
+                        .department("HR")
+                        .position("Administrator")
+                        .salary(0.0)
+                        .status(EmployeeStatus.ACTIVE)
+                        .createdAt(now)
+                        .createdBy("SYSTEM")
+                        .build()
+        );
+
+        Employee hrEmp = employeeRepo.save(
+                Employee.builder()
+                        .firstName("HR")
+                        .lastName("Manager")
+                        .email("hr@ems.com")
+                        .department("HR")
+                        .position("HR Manager")
+                        .salary(0.0)
+                        .status(EmployeeStatus.ACTIVE)
+                        .createdAt(now)
+                        .createdBy("SYSTEM")
+                        .build()
+        );
+
+        Employee employeeEmp = employeeRepo.save(
+                Employee.builder()
+                        .firstName("John")
+                        .lastName("Employee")
+                        .email("employee@ems.com")
+                        .department("IT")
+                        .position("Developer")
+                        .salary(30000.0)
+                        .status(EmployeeStatus.ACTIVE)
+                        .createdAt(now)
+                        .createdBy("SYSTEM")
+                        .build()
+        );
+
+        userRepo.save(
+                User.builder()
+                        .username("admin")
+                        .password(defaultPassword)
+                        .role(Role.ROLE_ADMIN)
+                        .employee(adminEmp)
+                        .build()
+        );
+
+        userRepo.save(
+                User.builder()
+                        .username("hr")
+                        .password(defaultPassword)
+                        .role(Role.ROLE_HR)
+                        .employee(hrEmp)
+                        .build()
+        );
+
+        userRepo.save(
+                User.builder()
+                        .username("employee")
+                        .password(defaultPassword)
+                        .role(Role.ROLE_EMPLOYEE)
+                        .employee(employeeEmp)
+                        .build()
+        );
+
+        System.out.println("=========================================================");
+        System.out.println(" USERS + EMPLOYEES SEEDED (DEV ONLY) ");
+        System.out.println(" Password for ALL users: employee123 ");
+        System.out.println("=========================================================");
+    }
+}
