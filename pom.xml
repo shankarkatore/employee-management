@@ -29,7 +29,7 @@
 
         <!-- Tooling -->
         <mapstruct.version>1.6.3</mapstruct.version>
-        <flyway.version>12.1.0</flyway.version>
+
 
         <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.5.5</maven.surefire.plugin.version>
@@ -91,29 +91,7 @@
             <artifactId>thymeleaf-extras-springsecurity6</artifactId>
         </dependency>
 
-        <!-- ========================= -->
-        <!-- DATABASE -->
-        <!-- ========================= -->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
 
-        <!-- ========================= -->
-        <!-- FLYWAY (EXPLICIT FOR BOOT 4) -->
-        <!-- ========================= -->
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>${flyway.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-database-postgresql</artifactId>
-            <version>${flyway.version}</version>
-        </dependency>
 
         <!-- ========================= -->
         <!-- API DOCS -->
